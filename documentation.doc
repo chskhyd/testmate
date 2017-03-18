@@ -1,0 +1,243 @@
+﻿Admin link testmate.local.com/admin
+Working
+
+Public/index.php calls core/application.php then it will call home controller 
+System files:-
+
+config.php
+
+/opt/lampp/htdocs/testmate/application/config config.php contains php initial set up like database parameters and site address
+--> It will call the home controller as the first page.
+
+
+application.php:-
+
+/opt/lampp/htdocs/testmate/application/core application.php  which has the core features like url splitter  links index() method by default or else given method and calls the home on first loads
+-> It spilts the url and checks whether the controller exists if not error controller will be called.
+
+controller.php
+
+/opt/lampp/htdocs/testmate/application/core controller.php  which is extended to every controller it has db object that stores returned by openDatabaseConnection() method to create a connection with the database has given in config.php file.. 
+
+it contains methods like loadview() with single input to load the front end php file.
+Loadview2() To load the view with 2 inputs
+loadmodel() To load only model.php assigns to the default object model in the controller
+loadmodel2() To load any model creates a new object and returns it . 
+
+
+controllers (application/controller)
+
+
+student files 
+
+home.php:-
+
+/opt/lampp/htdocs/testmate/application/controller home.php which is  a  first controller to be invoked in order to call the home page which loads the home view where student can sign up and sign in ;
+It has index method to load the view 'view/home/index.php'.
+AddStudent() method  used in adding new student to the database and acknowledgement is shown in the same page.
+validate() method validates the user if user exists then it will be redirected to studHome controller else shows the error in the same page.it will start a session and assins his name to $_SESSION['id] variable.
+
+
+studentHome.php
+
+/opt/lampp/htdocs/testmate/application/controller studentHome.php which has all the rules to show  the students.
+Check whether user is logged in .if logged in then it loads the view (view/student/index.php) it contains the all the rules and instructions to follow during test by students .
+If not logged in then it will redirect to home controller.
+
+
+
+
+exam.php
+
+/opt/lampp/htdocs/testmate/application/controller exam.php which loads the questions and options. buttons are used to take input from the student. which has coundown timer.
+It Checks whether user is logged in or not .if not logged in then redirects to home page.
+If user is logged in then it loads the model(pagination.php)  and question will be displayed to the student on the view (view/student/exam.php).
+
+POST Data(contoller test the based on isset('button name from the view'))
+
+The view contains next button to get the next question and same controllers brings it from the database using model and displays it to the same page.
+The view contains prev button to get the previous question.
+submit button to take the student answers from the radio button.
+Quit test is used to quit the test from any point of time.
+
+	GET Data
+
+pagination sends GET data to the same controller based on the quesion values the question number is loaded when selected.
+Pagination question number default color will be blue.
+Pagination number changes to red color when question is attempted.
+Pagination number changes to green color when question is marked for review.
+
+
+lastPage.php
+
+/opt/lampp/htdocs/testmate/application/controller lastPage.php which is the last page to show the results and test statistics to the students.
+
+It is called when time is finished or student press quit test button.
+ Which checks the whether student is logged in or not.
+If logged in it loads all the answers for the  questions from the model(pagination.php)
+it check the user answers with correct answers .
+Calculates score, attempted  ,unattempted ,wrong questions and loads the view(student/last.php) and which displays test statistics to the students.
+It makes the logout the student and session will be destroyed.
+
+
+
+admin files
+
+admin.php
+
+/opt/lampp/htdocs/testmate/application/controller admin.php which is used to login into  admin panel.
+It used to load the view (view/admin/index.php) where admin can be sign in to the admin panel.
+It validates the admin and goes to adminHome controller.
+
+  adminHome.php
+
+/opt/lampp/htdocs/testmate/application/controller adminHome.php which is the home page of the admin where admin can add new admin,add question ,view all questions ,update and delete it and student details .
+
+--> It also displays the test statistics.
+
+It checks whether admin is logged in if not redirects to the admin controller.else control goes to the GrabPage().
+GrabPage() private methods used to load test appearead student details with score from the model(pagination.php)
+
+It also get total question number andd total student registered and written test to display on the view (admin/home.php).
+Process() method is used to delete the student test statistics from the database when admin selects option from the view.
+
+adminRegister.php
+
+/opt/lampp/htdocs/testmate/application/controller adminRegister.php  which is used to  create a new admin contains registration page .Only admin  can create a new admin after logged in.
+	
+It checks whether admin is logged in or not .
+It loads the view(view/admin/register.php) which contains the field to create a new admin.
+AddAdmin() method to add new admin to the database.
+
+addQues.php
+
+/opt/lampp/htdocs/testmate/application/controller addQues.php which is used in adding new question to the database.
+It checks the admin is logged in or not .
+It loads the view (view/admin/addQuestion.php) when it there is no request
+to insert the data.
+If there is a request to insert data it calls insert() method to insert a new question to the database and displays the acknowledgement by loading the same page.
+
+/opt/lampp/htdocs/testmate/application/controller allques.php  which is used to display all the questions from the database and also used in updating a question and deleting the question.
+It checks the admin logged in or not .
+It loads the 10 questions at a time from the database using model(pagination.php) and displays on the view(admin/allquestions.php)
+process() method is used to delete the question from  the database  when admin selects option from the view.
+Update()  method is used to update the question  when admin selects option from the view.
+
+
+/opt/lampp/htdocs/testmate/application/controller allstudents.php   which is used in displaying all the students details along with their score and can delete the student account.Once student account is deleted all the  data including  score also get deleted.
+It checks the admin logged in or not .
+It loads the 10 student details at a time from the database using model(pagination.php) along with their score if they attempted the test  and displays on the view(admin/allStud.php)
+process() method is used to delete the complete student details from the database along with their score and account  when admin selects option from the view.
+
+logout.php
+
+/opt/lampp/htdocs/testmate/application/controller logout.php which has the code to logout the both student and admin but we only use this to logout from the admin panel.
+It makes the logout of the user and destroy session after that redirects to the home controller.
+
+/opt/lampp/htdocs/testmate/application/controller error.php which is used in redirecting when the controller is doesnot exist  and Enter url  does not exist.
+Loads the view(view/error/index.php) it contains the error message to be displayed.
+
+models(database operations)
+ 
+/opt/lampp/htdocs/testmate/application/model model.php  which contain methods in order to perform user actions with database like new student,adding new question,validation,updating result.( student actions )
+
+/opt/lampp/htdocs/testmate/application/model pagination.php which contains all the admin side database operation like updating question deleting dispalying testresults and deleting student ,displaying all the student results 
+
+
+views(application/view/)
+
+
+home (application/view/home)
+
+home.php it is the first page displayed to the student where he can sign in.(home page)
+
+
+
+error (application/view/error)
+
+index.php it is used to display the errors when the url doesnot exist.
+
+
+
+Student (application/view/student)
+
+index.php this page contains the rules or instructions to be displayed to the students.
+
+exam.php this page displays the questions with radio boxes to choose answer and buttons.
+
+last.php this page is used to display the test statistics 
+
+
+
+admin views (application/view/admin)
+
+index.php first page to be displayed in order to sign in to admin panel.
+
+home.php it is the admin panel which is the first page to be displayed when admin successful logged in.which contains the fields to add question ,add admin ,to check all questions and all students.(in table format data is displayed here test results are displayed)
+
+register.php this page is used to register a new admin.
+
+addQuestion.php is contains the fields where admin can add a new question with options and correct answer.
+
+allquestions.php which is used to display 10 questions at a time with pagination where admin can update and delete the questions.(in table format data is displayed)
+
+allStud.php it is used to display 10 student details at a time where admin can delete the student registration . (in table format data is displayed).
+Css (public /css)
+
+fonts(public/css/fonts)
+ which contains graphicons.pro and font awesome emoticons code.
+Bootstrap.min.css which is the css file to work bootstrap feature.
+Flipclock.css which is used to flip feature and display the clock on test.
+Main.css which is main css files contains header,footer etc
+plugins.css contains the code to added features to pages.
+Theme.css contains the code to highlight the themes in admin panel like addquestion,all students,all questions ,register , hypelinks background
+
+
+include files in all php contains header ,footer and scripts.(public/inc)
+
+config.php it is used as configuration in header file like name,author ,description and title  stores in a array used in template_start.php
+
+page_footer.php which adds the footer to every page.(contains footer crafted with .... by jntuhcej)
+
+page_head2.php is used as a header in displaying rules to the students(view/student/index.php)
+
+pge_head3.php which is used as header in  questions and timer. (view/student/exam.php) 
+
+page_head_admin.php which is used as header in admin home page i.e,(view/admin/home.php)
+
+page_header_admin.php which is used as header in all students,all questions,and all question operations.which contains GO back hyperlink to admin home.
+
+template_end.php which contains closing tags of body and html
+
+template_scripts.php which contains all the javascripts core  libraries.(bootstap.min.js , jquery.min.js ,plugin.js,app.js)
+
+template_start.php which adds head tag title, meta tags and links to css .
+
+Clock.php to include javascript  and css files to run the countdown timer.
+
+Javascript (public/js)
+
+adminresultapproval.js used to delete test results.
+adminapproval2.js  used to delete and update question
+
+bootbox.min.js is used in bootbox popup.
+flipclock.js  is used to display the countdown timer.
+jquery.cookie.js it is used in countdown timer.
+plugins.js is used in different plugin.
+
+pages(public/js/pages)
+
+login.js it is used to validate the fields and registration fields.(empty fields cannot be submitted )
+
+questionvalidation.js to validate the question ,option fields (empty fields cannot be submitted)
+
+vendor(public/js/vendor)
+ bootstrap.min.js to add bootstap facility.
+ jquery-1.11.1.min.js main library file to include jquery validation.
+
+ modernizr-2.7.1-respond-1.4.2.min.js to add features to old browsers.
+
+
+
+
+
